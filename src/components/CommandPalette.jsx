@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Command, Search, Settings, Sparkles, Terminal } from 'lucide-react'
+import { Command, Rocket, Search, Settings, Sparkles, Terminal, Clock } from 'lucide-react'
 import GlassCard from './GlassCard'
 
 export default function CommandPalette({ open, onClose, onAction }) {
@@ -16,7 +16,9 @@ export default function CommandPalette({ open, onClose, onAction }) {
 
   const actions = [
     { id: 'new-project', icon: <Sparkles size={16} />, label: 'New Project' },
+    { id: 'open-recent', icon: <Clock size={16} />, label: 'Open Recent Project' },
     { id: 'open-terminal', icon: <Terminal size={16} />, label: 'Open Terminal' },
+    { id: 'start-tuning', icon: <Rocket size={16} />, label: 'Start Tuning Job' },
     { id: 'settings', icon: <Settings size={16} />, label: 'Settings' },
   ]
 

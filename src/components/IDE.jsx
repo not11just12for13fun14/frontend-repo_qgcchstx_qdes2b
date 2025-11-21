@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import GlassCard from './GlassCard'
 import CommandPalette from './CommandPalette'
 import { api } from '../utils/api'
-import { File, GitBranch, Github, Play, Plus, Save, Terminal as TermIcon } from 'lucide-react'
+import { File, GitBranch, Play, Plus, Save } from 'lucide-react'
 
 const sampleFiles = {
   'app/page.jsx': `export default function Page(){\n  return <main className=\"p-8\">ArcynForge</main>\n}`,
@@ -17,15 +17,27 @@ export default function IDE() {
   const [palette, setPalette] = useState(false)
   const [projects, setProjects] = useState([])
   const [jobs, setJobs] = useState([])
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
     setContent(sampleFiles[active])
   }, [active])
 
+  async function refresh() {
+    try {
+      const [p, j] = await Promise.all([
+        api.get('/api/projects'),
+        api.get('/api/tuning-jobs'),
+      ])
+      setProjects(p.items || [])
+      setJobs(j.items || [])
+    } catch (e) {
+      // ignore for demo
+    }
+  }
+
   useEffect(() => {
-    // load projects and jobs from backend
-    api.get('/api/projects').then(r => setProjects(r.items || [])).catch(()=>{})
-    api.get('/api/tuning-jobs').then(r => setJobs(r.items || [])).catch(()=>{})
+    refresh()
   }, [])
 
   useEffect(() => {
@@ -44,16 +56,34 @@ export default function IDE() {
   async function handleAction(id){
     if(id === 'new-project'){
       try {
-        const res = await api.post('/api/projects', { name: `Arcyn ${Date.now()}`, language: 'javascript' })
-        const list = await api.get('/api/projects')
-        setProjects(list.items||[])
+        setCreating(true)
+        await api.post('/api/projects', { name: `Arcyn ${Date.now()}`, language: 'javascript' })
+        await refresh()
       } catch {
         // ignore
+      } finally {
+        setCreating(false)
+        setPalette(false)
       }
     }
     if(id === 'open-terminal'){
       document.getElementById('terminal')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
+    if(id === 'start-tuning'){
+      try {
+        const pid = projects[0]?.id || null
+        await api.post('/api/tuning-jobs', { project_id: pid, model: 'arcyn-prime', objective: 'reduce latency', status: 'queued' })
+        await refresh()
+        setPalette(false)
+      } catch {}
+    }
+  }
+
+  async function markJobRunning(job){
+    try {
+      await api.put(`/api/tuning-jobs/${job.id}/status`, { status: 'running' })
+      await refresh()
+    } catch {}
   }
 
   return (
@@ -86,7 +116,7 @@ export default function IDE() {
               <GitBranch size={14} /> main • {projectName}
             </div>
             <div className="flex items-center gap-2">
-              <button className="rounded-lg bg-white/10 px-2 py-1 text-xs"><Save size={12} /></button>
+              <button disabled={creating} className="rounded-lg bg-white/10 px-2 py-1 text-xs"><Save size={12} /></button>
               <button className="rounded-lg bg-white text-black px-3 py-1 text-xs flex items-center gap-1"><Play size={12} />Run</button>
             </div>
           </div>
@@ -104,12 +134,20 @@ export default function IDE() {
             <div className="mt-3 rounded-lg bg-white/5 h-[200px]" />
           </GlassCard>
           <GlassCard className="p-4 h-[300px]">
-            <div className="text-white/70 text-sm">Tuning Jobs</div>
+            <div className="flex items-center justify-between">
+              <div className="text-white/70 text-sm">Tuning Jobs</div>
+              <button onClick={()=>handleAction('start-tuning')} className="text-xs rounded-lg bg-white/10 px-2 py-1 text-white/70 hover:text-white">Start</button>
+            </div>
             <div className="mt-3 space-y-2 text-white/70 text-sm">
               {jobs.map(j => (
                 <div key={j.id} className="rounded-lg bg-white/5 px-3 py-2 flex items-center justify-between">
                   <span>{j.model}</span>
-                  <span className="text-xs text-white/50">{j.status}</span>
+                  <span className="flex items-center gap-3">
+                    <span className="text-xs text-white/50">{j.status}</span>
+                    {j.status !== 'completed' && (
+                      <button onClick={()=>markJobRunning(j)} className="text-xs rounded bg-white/10 px-2 py-1">Run</button>
+                    )}
+                  </span>
                 </div>
               ))}
               {jobs.length===0 && <div className="rounded-lg bg-white/5 px-3 py-2 text-white/50">No jobs</div>}
