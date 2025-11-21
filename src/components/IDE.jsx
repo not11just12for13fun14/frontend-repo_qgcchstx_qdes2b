@@ -3,6 +3,7 @@ import GlassCard from './GlassCard'
 import CommandPalette from './CommandPalette'
 import { api } from '../utils/api'
 import { File, GitBranch, Play, Plus, Save } from 'lucide-react'
+import JobDrawer from './JobDrawer'
 
 const sampleFiles = {
   'app/page.jsx': `export default function Page(){\n  return <main className=\"p-8\">ArcynForge</main>\n}`,
@@ -18,6 +19,7 @@ export default function IDE() {
   const [projects, setProjects] = useState([])
   const [jobs, setJobs] = useState([])
   const [creating, setCreating] = useState(false)
+  const [drawerJob, setDrawerJob] = useState(null)
 
   useEffect(() => {
     setContent(sampleFiles[active])
@@ -38,6 +40,8 @@ export default function IDE() {
 
   useEffect(() => {
     refresh()
+    const interval = setInterval(refresh, 2000)
+    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -50,6 +54,20 @@ export default function IDE() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+
+  useEffect(() => {
+    function onNewProject(){ handleAction('new-project') }
+    function onOpenIDE(){ document.getElementById('ide-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
+    function onStartTuning(){ handleAction('start-tuning') }
+    window.addEventListener('arcyn:new-project', onNewProject)
+    window.addEventListener('arcyn:open-ide', onOpenIDE)
+    window.addEventListener('arcyn:start-tuning', onStartTuning)
+    return () => {
+      window.removeEventListener('arcyn:new-project', onNewProject)
+      window.removeEventListener('arcyn:open-ide', onOpenIDE)
+      window.removeEventListener('arcyn:start-tuning', onStartTuning)
+    }
+  }, [projects])
 
   const projectName = useMemo(() => (projects[0]?.name || 'Untitled Project'), [projects])
 
@@ -87,7 +105,7 @@ export default function IDE() {
   }
 
   return (
-    <section className="relative py-24">
+    <section id="ide-section" className="relative py-24">
       <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-[280px_1fr_360px] gap-6">
         <GlassCard className="p-4 h-[600px]">
           <div className="flex items-center justify-between text-white/70 text-sm">
@@ -140,15 +158,15 @@ export default function IDE() {
             </div>
             <div className="mt-3 space-y-2 text-white/70 text-sm">
               {jobs.map(j => (
-                <div key={j.id} className="rounded-lg bg-white/5 px-3 py-2 flex items-center justify-between">
+                <button key={j.id} onClick={()=>setDrawerJob(j.id)} className="w-full rounded-lg bg-white/5 px-3 py-2 flex items-center justify-between text-left hover:bg-white/10">
                   <span>{j.model}</span>
                   <span className="flex items-center gap-3">
                     <span className="text-xs text-white/50">{j.status}</span>
                     {j.status !== 'completed' && (
-                      <button onClick={()=>markJobRunning(j)} className="text-xs rounded bg-white/10 px-2 py-1">Run</button>
+                      <span onClick={(e)=>{ e.stopPropagation(); markJobRunning(j) }} className="text-xs rounded bg-white/10 px-2 py-1 cursor-pointer">Run</span>
                     )}
                   </span>
-                </div>
+                </button>
               ))}
               {jobs.length===0 && <div className="rounded-lg bg-white/5 px-3 py-2 text-white/50">No jobs</div>}
             </div>
@@ -157,6 +175,7 @@ export default function IDE() {
       </div>
 
       <CommandPalette open={palette} onClose={()=>setPalette(false)} onAction={handleAction} />
+      <JobDrawer jobId={drawerJob} onClose={()=>setDrawerJob(null)} />
     </section>
   )
 }

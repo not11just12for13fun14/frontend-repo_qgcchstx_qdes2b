@@ -1,12 +1,15 @@
 import React from 'react'
 import GlassCard from './GlassCard'
+import MotionGuidelines from './MotionGuidelines'
+import DesignTokens from './DesignTokens'
 
 const sections = [
   { id: 'getting-started', title: 'Getting Started' },
   { id: 'ide', title: 'IDE' },
   { id: 'ai-engine', title: 'AI Engine' },
   { id: 'api', title: 'API' },
-  { id: 'glossary', title: 'Glossary' },
+  { id: 'tokens', title: 'Design Tokens' },
+  { id: 'motion', title: 'Motion Guidelines' },
 ]
 
 export default function Docs() {
@@ -23,12 +26,19 @@ export default function Docs() {
           </GlassCard>
         </aside>
         <div className="space-y-8">
-          {sections.map(s => (
+          {sections.filter(s=>!['tokens','motion'].includes(s.id)).map(s => (
             <GlassCard key={s.id} className="p-6" id={s.id}>
               <h3 className="text-white font-semibold text-xl">{s.title}</h3>
               <pre className="mt-4 text-xs md:text-sm text-white/80 bg-black/40 rounded-xl p-4 overflow-auto"><code>{`// ${s.title}\n// Code examples and API references will render here.`}</code></pre>
             </GlassCard>
           ))}
+
+          <div id="tokens">
+            <DesignTokens />
+          </div>
+          <div id="motion">
+            <MotionGuidelines />
+          </div>
         </div>
       </div>
     </section>

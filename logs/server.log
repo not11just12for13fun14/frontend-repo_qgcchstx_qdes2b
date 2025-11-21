@@ -3,17 +3,17 @@
 > vite
 
 
-  VITE v5.4.20  ready in 191 ms
+  VITE v5.4.20  ready in 195 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://172.20.57.82:3000/
-4:52:56 AM [vite] warning: The character ">" is not valid inside a JSX element
-124|              <textarea value={content} onChange={e=>setContent(e.target.value)} className="bg-black/60 p-4 text-white/80 text-sm font-mono outline-none" />
-125|              <div id="terminal" className="border-t border-white/10 bg-black/70 text-white/70 p-3 font-mono text-xs overflow-auto">
-126|                $ build --watch\n> compiled successfully
+4:59:53 AM [vite] warning: The character ">" is not valid inside a JSX element
+142|              <textarea value={content} onChange={e=>setContent(e.target.value)} className="bg-black/60 p-4 text-white/80 text-sm font-mono outline-none" />
+143|              <div id="terminal" className="border-t border-white/10 bg-black/70 text-white/70 p-3 font-mono text-xs overflow-auto">
+144|                $ build --watch\n> compiled successfully
    |                                 ^
-127|              </div>
-128|            </div>
+145|              </div>
+146|            </div>
 
   Plugin: vite:esbuild
   File: /home/workspace/src/components/IDE.jsx

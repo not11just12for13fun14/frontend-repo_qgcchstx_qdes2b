@@ -1,11 +1,16 @@
 import React from 'react'
 import GlassCard from './GlassCard'
+import ThemeGallery from './ThemeGallery'
 
 const projects = [
   { name: 'Nexalab Platform', updated: '2h ago' },
   { name: 'Modulex UI', updated: '1d ago' },
   { name: 'Arcyn.x Agents', updated: '3d ago' },
 ]
+
+function dispatch(name){
+  window.dispatchEvent(new CustomEvent(name))
+}
 
 export default function Dashboard() {
   return (
@@ -42,11 +47,14 @@ export default function Dashboard() {
           <GlassCard className="p-6">
             <div className="text-white font-semibold">Quick actions</div>
             <div className="mt-3 grid grid-cols-2 gap-3">
-              {['New Project','Open IDE','Start Session','Tune Model'].map(a => (
-                <button key={a} className="rounded-xl bg-white text-black px-3 py-2 text-sm">{a}</button>
-              ))}
+              <button onClick={()=>dispatch('arcyn:new-project')} className="rounded-xl bg-white text-black px-3 py-2 text-sm">New Project</button>
+              <button onClick={()=>dispatch('arcyn:open-ide')} className="rounded-xl bg-white text-black px-3 py-2 text-sm">Open IDE</button>
+              <button className="rounded-xl bg-white text-black px-3 py-2 text-sm">Start Session</button>
+              <button onClick={()=>dispatch('arcyn:start-tuning')} className="rounded-xl bg-white text-black px-3 py-2 text-sm">Tune Model</button>
             </div>
           </GlassCard>
+
+          <ThemeGallery />
 
           <GlassCard className="p-6">
             <div className="text-white font-semibold">Usage analytics</div>
