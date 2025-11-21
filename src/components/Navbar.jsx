@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
+import ThemeToggle from './ThemeToggle'
 
 export default function Navbar() {
+  const [open, setOpen] = useState(false)
   return (
     <div className="fixed top-0 inset-x-0 z-40">
       <div className="mx-auto max-w-6xl px-6">
@@ -13,8 +15,12 @@ export default function Navbar() {
             <a href="#features" className="hover:text-white">Features</a>
             <a href="#pricing" className="hover:text-white">Pricing</a>
             <a href="#docs" className="hover:text-white">Docs</a>
+            <span className="text-xs text-white/40">⌘K</span>
           </nav>
-          <a href="#" className="rounded-xl bg-white text-black px-4 py-2 text-sm">Get Started</a>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <a href="#" className="rounded-xl bg-white text-black px-4 py-2 text-sm">Get Started</a>
+          </div>
         </div>
       </div>
     </div>
